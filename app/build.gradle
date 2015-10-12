@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "com.android.mmadhusoodan.masterblaster"
+        applicationId "com.android.MAndroidImage"
         minSdkVersion 19
         targetSdkVersion 21
         versionCode 1
