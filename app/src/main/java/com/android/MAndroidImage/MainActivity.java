@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.InputStream;
@@ -18,10 +19,11 @@ import java.io.InputStream;
 public class MainActivity extends Activity {
     private static final String TAG = "Log-Messages";
     private final String BASEURL = "http://cg8t.com/api/v1/users//5681034041491456/";
-    private final String imageName = BASEURL + "1008151122.jpg";
+    private final String imageName = BASEURL + "1000_unique_dates_19_0001.jpg";
     private ImageView image;
     private ProgressDialog mProgressDialog;
     private long startTime = 0l;
+    private TextView downloadTime;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,6 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
 
-                startTime = System.currentTimeMillis();
                 // Execute DownloadImage AsyncTask
                 new DownloadImage().execute(imageName);
             }
@@ -70,6 +71,7 @@ public class MainActivity extends Activity {
             String imageURL = URL[0];
             Bitmap bitmap = null;
             try {
+                startTime = System.currentTimeMillis();
                 // Download Image from URL
                 InputStream input = new java.net.URL(imageURL).openStream();
                 // Decode Bitmap
@@ -89,6 +91,9 @@ public class MainActivity extends Activity {
             long duration = (System.currentTimeMillis() - startTime) / 100;
             Log.i(TAG, "Image Download time : " + duration + " sec");
             Toast.makeText(getApplicationContext(), duration + " secs", Toast.LENGTH_LONG).show();
+
+            downloadTime = (TextView) findViewById(R.id.downloadTime);
+            downloadTime.setText(String.valueOf(duration) + " Sec");
         }
     }
 }
