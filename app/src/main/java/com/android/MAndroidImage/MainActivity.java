@@ -23,7 +23,6 @@ public class MainActivity extends Activity {
     private ImageView image;
     private ProgressDialog mProgressDialog;
     private long startTime = 0l;
-    private TextView downloadTime;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,12 +87,12 @@ public class MainActivity extends Activity {
             image.setImageBitmap(result);
             // Close progressdialog
             mProgressDialog.dismiss();
-            long duration = (System.currentTimeMillis() - startTime) / 100;
-            Log.i(TAG, "Image Download time : " + duration + " sec");
-            Toast.makeText(getApplicationContext(), duration + " secs", Toast.LENGTH_LONG).show();
+            long duration = System.currentTimeMillis() - startTime;
+            Log.i(TAG, "Image Download time : " + duration + " ms");
+            Toast.makeText(getApplicationContext(), duration + " ms", Toast.LENGTH_LONG).show();
 
-            downloadTime = (TextView) findViewById(R.id.downloadTime);
-            downloadTime.setText(String.valueOf(duration) + " Sec");
+            TextView downloadTime = (TextView) findViewById(R.id.downloadTime);
+            downloadTime.setText(String.valueOf(duration) + " ms");
         }
     }
 }
