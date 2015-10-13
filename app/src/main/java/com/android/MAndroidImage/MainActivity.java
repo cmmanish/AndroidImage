@@ -5,8 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,24 +16,24 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.io.InputStream;
 import java.util.Random;
 
 public class MainActivity extends Activity {
+    static final int REQUEST_TAKE_PHOTO = 1;
     private static final String TAG = "Log-Messages";
     private final String BASEURL = "http://cg8t.com/api/v1/users//5681034041491456/";
     private final String[] imageList = {"DSC_0095.JPG", "DSC_0074.JPG", "DSC_0031.JPG", "DSC_0032.JPG", "DSC_0006.JPG", "DSC_0064.JPG", "DSC_0023.JPG", "DSC_0026.JPG", "DSC_0038.JPG"};
+    String mCurrentPhotoPath;
+    File photoFile = new File("");
     private ImageView image;
     private ProgressDialog mProgressDialog;
     private long startTime = 0l;
-    static final int REQUEST_TAKE_PHOTO = 1;
-    String mCurrentPhotoPath;
-    File photoFile = new File("");
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -42,7 +42,8 @@ public class MainActivity extends Activity {
         postPhoto(photoFile);
 
     }
-        @Override
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
         image = (ImageView) findViewById(R.id.image);
 
         // Locate the Button in activity_main.xml
-        Button button = (Button) findViewById(R.id.button);
+        Button button = (Button) findViewById(R.id.buttonDownload);
 
         ImageButton cameraButton = (ImageButton) findViewById(R.id.capture_front);
 
@@ -74,7 +75,7 @@ public class MainActivity extends Activity {
         cameraButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 photoFile = dispatchTakePictureIntent();
-                System.out.println("in listener: " + photoFile.toString() + " and " + photoFile.getAbsoluteFile());
+                Log.i(TAG, "in listener: " + photoFile.toString() + " and " + photoFile.getAbsoluteFile());
             }
         });
     }
@@ -82,7 +83,7 @@ public class MainActivity extends Activity {
     private File dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
-   //     File photoFile = null;
+        //     File photoFile = null;
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             try {
@@ -93,10 +94,9 @@ public class MainActivity extends Activity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(photoFile));
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-        //        postPhoto(photoFile);
+                //        postPhoto(photoFile);
             }
         }
         return photoFile;
@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
 
     private void postPhoto(File photoFile) {
         String url = "http://cg8t.com/api/v1/users/5681034041491456/";
-        System.out.println("url: " + url + " photoFile path: " + photoFile.getAbsolutePath());
+        Log.i(TAG, "url: " + url + " photoFile path: " + photoFile.getAbsolutePath());
         String USER_AGENT = "Mozilla/5.0";
         try {
             URL obj = new URL(url);
@@ -129,47 +129,45 @@ public class MainActivity extends Activity {
 
             int responseCode = con.getResponseCode();
 
-            System.out.println("\nSending 'POST' request to URL : " + url);
-            System.out.println("Post parameters : " + urlParameters);
-            System.out.println("Response Code : " + responseCode);
+            Log.i(TAG, "\nSending 'POST' request to URL : " + url);
+            Log.i(TAG, "Post parameters : " + urlParameters);
+            Log.i(TAG, "Response Code : " + responseCode);
 
-            BufferedReader in = new BufferedReader( new InputStreamReader(con.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuffer response = new StringBuffer();
 
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-            System.out.println(response.toString());
+            Log.i(TAG, response.toString());
 
             in.close();
+        } catch (IOException e) {
+            Log.i(TAG, "Exception: " + e.toString());
         }
-        catch(IOException e) { System.out.println("Exception: " + e.toString()); }
     }
     // Todo: Show thumbnail
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        System.out.println("result code: " + resultCode + " and request code: " + requestCode);
-//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-//            Bundle extras = data.getExtras();
-//            Bitmap imageBitmap = (Bitmap) extras.get("data");
-//            image.setImageBitmap(imageBitmap);
-//        }
-//        else
-//            System.out.println("NO");
-//    }
+    //    @Override
+    //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    //        Log.i(TAG,"result code: " + resultCode + " and request code: " + requestCode);
+    //        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+    //            Bundle extras = data.getExtras();
+    //            Bitmap imageBitmap = (Bitmap) extras.get("data");
+    //            image.setImageBitmap(imageBitmap);
+    //        }
+    //        else
+    //            Log.i(TAG,"NO");
+    //    }
 
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
+                storageDir      /* directory */);
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
