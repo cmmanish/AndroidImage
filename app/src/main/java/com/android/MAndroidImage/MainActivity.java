@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,21 +16,21 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.io.InputStream;
+import java.util.Random;
 
 public class MainActivity extends Activity {
     private static final String TAG = "Log-Messages";
     private final String BASEURL = "http://cg8t.com/api/v1/users//5681034041491456/";
-    private final String imageName = BASEURL + "1000_unique_dates_19_0001.jpg";
+    private final String[] imageList = {"DSC_0095.JPG", "DSC_0074.JPG", "DSC_0031.JPG", "DSC_0032.JPG", "DSC_0006.JPG", "DSC_0064.JPG", "DSC_0023.JPG", "DSC_0026.JPG", "DSC_0038.JPG"};
     private ImageView image;
     private ProgressDialog mProgressDialog;
     private long startTime = 0l;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
     File photoFile = new File("");
@@ -38,7 +39,6 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("CheckStartActivity", "onActivityResult and resultCode = " + resultCode);
         // TODO Auto-generated method stub
-
         postPhoto(photoFile);
 
     }
@@ -59,11 +59,13 @@ public class MainActivity extends Activity {
 
         ImageButton cameraButton = (ImageButton) findViewById(R.id.capture_front);
 
-
         // Capture button click
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
 
+                Random generator = new Random();
+                int i = generator.nextInt(imageList.length);
+                final String imageName = BASEURL + imageList[i];
                 // Execute DownloadImage AsyncTask
                 new DownloadImage().execute(imageName);
             }
@@ -71,13 +73,10 @@ public class MainActivity extends Activity {
 
         cameraButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
-
                 photoFile = dispatchTakePictureIntent();
                 System.out.println("in listener: " + photoFile.toString() + " and " + photoFile.getAbsoluteFile());
             }
         });
-
-
     }
 
     private File dispatchTakePictureIntent() {
@@ -86,13 +85,11 @@ public class MainActivity extends Activity {
    //     File photoFile = null;
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
                 Log.i(TAG, "Exception thrown in dispatchTakePictureIntent()" + ex.toString());
-
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -102,7 +99,6 @@ public class MainActivity extends Activity {
         //        postPhoto(photoFile);
             }
         }
-
         return photoFile;
     }
 
@@ -110,7 +106,6 @@ public class MainActivity extends Activity {
         String url = "http://cg8t.com/api/v1/users/5681034041491456/";
         System.out.println("url: " + url + " photoFile path: " + photoFile.getAbsolutePath());
         String USER_AGENT = "Mozilla/5.0";
-
         try {
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -221,14 +216,12 @@ public class MainActivity extends Activity {
             image.setImageBitmap(result);
             // Close progressdialog
             mProgressDialog.dismiss();
-            long duration = System.currentTimeMillis() - startTime;
-            Log.i(TAG, "Image Download time : " + duration + " ms");
+            String duration = String.valueOf(System.currentTimeMillis() - startTime) + " ms";
+            Log.i(TAG, "Image Download time : " + duration);
             Toast.makeText(getApplicationContext(), duration + " ms", Toast.LENGTH_LONG).show();
-
             TextView downloadTime = (TextView) findViewById(R.id.downloadTime);
-            downloadTime.setText(String.valueOf(duration) + " ms");
+            downloadTime.setTextColor(Color.RED);
+            downloadTime.setText(duration);
         }
     }
-
-
 }
