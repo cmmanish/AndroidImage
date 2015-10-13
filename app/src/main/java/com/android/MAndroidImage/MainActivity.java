@@ -2,6 +2,7 @@ package com.android.MAndroidImage;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -20,11 +22,36 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.R.drawable.*;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.net.ssl.HttpsURLConnection;
+
 
 public class MainActivity extends Activity {
     private static final String TAG = "Log-Messages";
@@ -36,11 +63,25 @@ public class MainActivity extends Activity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
+    File photoFile = new File("");
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("CheckStartActivity", "onActivityResult and resultCode = " + resultCode);
+        // TODO Auto-generated method stub
+
+        postPhoto(photoFile);
+
+
+    }
+        @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         // Get the layout from image.xml
         setContentView(R.layout.activity_main);
 
@@ -65,18 +106,24 @@ public class MainActivity extends Activity {
         cameraButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
 
-                dispatchTakePictureIntent();
+                photoFile = dispatchTakePictureIntent();
+                System.out.println("in listener: " + photoFile.toString() + " and " + photoFile.getAbsoluteFile());
             }
         });
+
+
     }
 
 
-    private void dispatchTakePictureIntent() {
+
+
+    private File dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
+   //     File photoFile = null;
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            File photoFile = null;
+
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
@@ -89,9 +136,62 @@ public class MainActivity extends Activity {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+        //        postPhoto(photoFile);
             }
         }
+
+        return photoFile;
     }
+
+    private void postPhoto(File photoFile) {
+        String url = "http://cg8t.com/api/v1/users/5681034041491456/";
+        System.out.println("url: " + url + " photoFile path: " + photoFile.getAbsolutePath());
+        String USER_AGENT = "Mozilla/5.0";
+
+        try {
+            URL obj = new URL(url);
+
+
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            //add reuqest header
+            con.setRequestMethod("POST");
+            con.setRequestProperty("User-Agent", USER_AGENT);
+            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+            BufferedReader reader = null;
+            String urlParameters = "limit=1";
+
+            // Send post request
+            con.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(photoFile)));
+            for (String line; (line = reader.readLine()) != null; ) {
+                wr.writeBytes(line);
+            }
+            wr.flush();
+            wr.close();
+
+            int responseCode = con.getResponseCode();
+
+            System.out.println("\nSending 'POST' request to URL : " + url);
+            System.out.println("Post parameters : " + urlParameters);
+            System.out.println("Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader( new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            System.out.println(response.toString());
+
+            in.close();
+        }
+        catch(IOException e) { System.out.println("Exception: " + e.toString()); }
+    }
+
+
 
 
     // Todo: Show thumbnail
@@ -123,8 +223,6 @@ public class MainActivity extends Activity {
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
     }
-
-
 
 
     // DownloadImage AsyncTask
