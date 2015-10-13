@@ -9,19 +9,28 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends Activity {
@@ -29,15 +38,15 @@ public class MainActivity extends Activity {
     private static final String TAG = "Log-Messages";
     private final String BASEURL = "http://cg8t.com/api/v1/users//5681034041491456/";
     private final String[] imageList = {"DSC_0095.JPG", "DSC_0074.JPG", "DSC_0031.JPG", "DSC_0032.JPG", "DSC_0006.JPG", "DSC_0064.JPG", "DSC_0023.JPG", "DSC_0026.JPG", "DSC_0038.JPG"};
-    String mCurrentPhotoPath;
-    File photoFile = new File("");
+    private String mCurrentPhotoPath;
+    private File photoFile = new File("");
     private ImageView image;
     private ProgressDialog mProgressDialog;
     private long startTime = 0l;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("CheckStartActivity", "onActivityResult and resultCode = " + resultCode);
+        Log.i("CheckStartActivity", "onActivityResult and resultCode = " + resultCode);
         // TODO Auto-generated method stub
         postPhoto(photoFile);
     }
@@ -74,7 +83,7 @@ public class MainActivity extends Activity {
         cameraButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 photoFile = dispatchTakePictureIntent();
-                Log.i(TAG, "in listener: " + photoFile.toString() + " and " + photoFile.getAbsoluteFile());
+                Log.i(TAG, "setOnClickListener: " + photoFile.toString());
             }
         });
     }
@@ -99,6 +108,37 @@ public class MainActivity extends Activity {
             }
         }
         return photoFile;
+    }
+
+    public void POSTPhotoTOServer(File photoFile) {
+        String url = "http://cg8t.com/api/v1/users/5681034041491456/";
+        String USER_AGENT = "Mozilla/5.0";
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpPost postRequest = new HttpPost(url);
+
+        try {
+            List<NameValuePair> nameValuePairs = new ArrayList<>();// you have pass, invnum and image
+            nameValuePairs.add(new BasicNameValuePair("image", photoFile.toString()));
+            nameValuePairs.add(new BasicNameValuePair("User-Agent", USER_AGENT));
+            nameValuePairs.add(new BasicNameValuePair("Accept-Language", "en-US,en;q=0.5"));
+
+            postRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            httpClient.execute(postRequest);
+
+            HttpResponse response = httpClient.execute(postRequest);
+
+            Log.i(TAG, "\nSending 'POST' request to URL : " + url);
+            Log.i(TAG, "Post parameters : " + nameValuePairs);
+            Log.i(TAG, "Response Code : " + response.getStatusLine().getStatusCode());
+
+
+            // Read the response
+            String jsonString = EntityUtils.toString(response.getEntity());
+            Log.i(TAG, "response after upload" + jsonString);
+
+        } catch (Exception e) {
+            Log.i(TAG, "Error in POSTPhotoTOServer" + e.getMessage());
+        }
     }
 
     private void postPhoto(File photoFile) {
@@ -142,7 +182,7 @@ public class MainActivity extends Activity {
             Log.i(TAG, response.toString());
 
             in.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.i(TAG, "Exception: " + e.toString());
         }
     }
@@ -161,15 +201,14 @@ public class MainActivity extends Activity {
 
     private File createImageFile() throws IOException {
         // Create an image file name
+        File f = new File("/storage/emulated/legacy/Pictures");
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */);
+     //           File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", f);
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        mCurrentPhotoPath = "file: " + image.getAbsolutePath();
         return image;
     }
 
