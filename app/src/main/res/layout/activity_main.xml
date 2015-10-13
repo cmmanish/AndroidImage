@@ -24,7 +24,7 @@
 
     <ImageButton
         android:id="@+id/capture_front"
-        android:src="@drawable/camera"
+        android:src="@drawable/camera1"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginLeft="20dp"
