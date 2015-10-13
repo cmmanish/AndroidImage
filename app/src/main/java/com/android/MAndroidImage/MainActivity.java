@@ -2,7 +2,6 @@ package com.android.MAndroidImage;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,43 +14,13 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.R.drawable.*;
+import android.widget.*;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.util.EntityUtils;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.net.ssl.HttpsURLConnection;
-
 
 public class MainActivity extends Activity {
     private static final String TAG = "Log-Messages";
@@ -72,14 +41,11 @@ public class MainActivity extends Activity {
 
         postPhoto(photoFile);
 
-
     }
         @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         // Get the layout from image.xml
@@ -114,9 +80,6 @@ public class MainActivity extends Activity {
 
     }
 
-
-
-
     private File dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -150,8 +113,6 @@ public class MainActivity extends Activity {
 
         try {
             URL obj = new URL(url);
-
-
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
             //add reuqest header
@@ -190,10 +151,6 @@ public class MainActivity extends Activity {
         }
         catch(IOException e) { System.out.println("Exception: " + e.toString()); }
     }
-
-
-
-
     // Todo: Show thumbnail
 //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -223,7 +180,6 @@ public class MainActivity extends Activity {
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
     }
-
 
     // DownloadImage AsyncTask
     private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
@@ -258,9 +214,6 @@ public class MainActivity extends Activity {
             }
             return bitmap;
         }
-
-
-
 
         @Override
         protected void onPostExecute(Bitmap result) {
