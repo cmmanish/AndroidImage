@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
         // Locate the Button in activity_main.xml
         Button button = (Button) findViewById(R.id.buttonDownload);
 
-        ImageButton cameraButton = (ImageButton) findViewById(R.id.capture_front);
+        ImageButton cameraButton = (ImageButton) findViewById(R.id.cameraButton);
 
         // Capture button click
         button.setOnClickListener(new OnClickListener() {
