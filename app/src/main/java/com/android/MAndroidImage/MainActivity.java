@@ -212,7 +212,7 @@ public class MainActivity extends Activity {
             String duration = String.valueOf(System.currentTimeMillis() - startTime) + " ms";
             Log.i(TAG, "Image Download time : " + duration);
             Toast.makeText(getApplicationContext(), duration + " ms", Toast.LENGTH_LONG).show();
-            TextView downloadTime = (TextView) findViewById(R.id.downloadTime1);
+            TextView downloadTime = (TextView) findViewById(R.id.dTime);
             downloadTime.setTextColor(Color.RED);
             downloadTime.setText(duration);
         }
