@@ -33,8 +33,8 @@
     <ImageButton
             android:id="@+id/cameraButton"
             android:src="@drawable/camera"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_marginLeft="20dp"
             android:scaleType="fitXY"
             android:showAsAction="always"
