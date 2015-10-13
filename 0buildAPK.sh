@@ -2,5 +2,4 @@
 
 gradle clean build;
 gradle uninstallAll
-
 gradle installDebug
