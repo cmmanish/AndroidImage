@@ -40,7 +40,6 @@ public class MainActivity extends Activity {
         Log.d("CheckStartActivity", "onActivityResult and resultCode = " + resultCode);
         // TODO Auto-generated method stub
         postPhoto(photoFile);
-
     }
 
     @Override
