@@ -10,13 +10,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -35,7 +36,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
-import java.util.logging.Handler;
 
 public class MainActivity extends Activity {
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -142,21 +142,23 @@ public class MainActivity extends Activity {
             startTime = System.currentTimeMillis();
             HttpResponse response = client.execute(put);
             String duration = String.valueOf(System.currentTimeMillis() - startTime);
+
             long fileSize = photoFile.length();
+            Log.i(TAG, "Upload fileSize: " + fileSize);
+
             String speed = String.valueOf(fileSize / Integer.parseInt(duration));
 
             Log.i(TAG, response.getStatusLine().toString());
-            Toast.makeText(getApplicationContext(), duration, Toast.LENGTH_LONG).show();
+            //            Toast.makeText(getApplicationContext(), duration, Toast.LENGTH_LONG).show();
 
-            TextView downloadTime = (TextView) findViewById(R.id.dTime);
-            TextView networkspeed = (TextView) findViewById(R.id.networkspeed);
-
+            TextView downloadTime = (TextView) findViewById(R.id.Time);
+            TextView networkspeed = (TextView) findViewById(R.id.networkSpeed);
 
             networkspeed.setTextColor(Color.BLUE);
-            networkspeed.setText(speed + "kbps");
+            networkspeed.setText(speed + " kbps");
 
             downloadTime.setTextColor(Color.RED);
-            downloadTime.setText(duration + "ms");
+            downloadTime.setText(duration + " ms");
 
             HttpEntity entity = response.getEntity();
             if (entity != null) {
@@ -185,8 +187,7 @@ public class MainActivity extends Activity {
         // Create an image file name
         File file = new File("/storage/emulated/legacy/Pictures");
 
-        String imageFileName = "FromAndroid_" + timeStamp;
-        Log.i(TAG, imageFileName);
+        String imageFileName = "FromAndroid_";
 
         File image = File.createTempFile(imageFileName, ".jpg", file);
         return image;
@@ -208,26 +209,26 @@ public class MainActivity extends Activity {
             mProgressDialog.setIndeterminate(false);
             // Show progressdialog
             mProgressDialog.show();
-            TextView networkSpeed = (TextView) findViewById(R.id.networkspeed);
+            TextView networkSpeed = (TextView) findViewById(R.id.networkSpeed);
             networkSpeed.setText("");
-            TextView downloadTime = (TextView) findViewById(R.id.downloadTime);
+            TextView downloadTime = (TextView) findViewById(R.id.Time);
             downloadTime.setText("");
         }
 
         @Override
         protected Bitmap doInBackground(String... URL) {
-                String imageURL = URL[0];
-                Bitmap bitmap = null;
-                try {
-                    startTime = System.currentTimeMillis();
-                    // Download Image from URL
-                    InputStream input = new java.net.URL(imageURL).openStream();
-                    // Decode Bitmap
-                    bitmap = BitmapFactory.decodeStream(input);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return bitmap;
+            String imageURL = URL[0];
+            Bitmap bitmap = null;
+            try {
+                startTime = System.currentTimeMillis();
+                // Download Image from URL
+                InputStream input = new java.net.URL(imageURL).openStream();
+                // Decode Bitmap
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return bitmap;
         }
 
         @Override
@@ -238,17 +239,21 @@ public class MainActivity extends Activity {
             mProgressDialog.dismiss();
             String duration = String.valueOf(System.currentTimeMillis() - startTime);
             Log.i(TAG, "Image Download time : " + duration);
-            Toast.makeText(getApplicationContext(), duration + " ms", Toast.LENGTH_LONG).show();
-            TextView downloadTime = (TextView) findViewById(R.id.dTime);
+            //            Toast.makeText(getApplicationContext(), duration + " ms", Toast.LENGTH_LONG).show();
+            TextView downloadTime = (TextView) findViewById(R.id.Time);
             downloadTime.setTextColor(Color.RED);
-            downloadTime.setText(duration + "ms");
+            downloadTime.setText(duration + " ms");
 
             long fileSize = (result.getWidth() * result.getHeight());
+
+            Log.i(TAG, "Download fileSize: " + fileSize / 1024);
+
             String speed = String.valueOf(fileSize / Integer.parseInt(duration));
 
-            TextView networkspeed = (TextView) findViewById(R.id.networkspeed);
-            networkspeed.setTextColor(Color.BLUE);
-            networkspeed.setText(speed + "kbps");
+            TextView networkSpeed = (TextView) findViewById(R.id.networkSpeed);
+            networkSpeed.setTextColor(Color.BLUE);
+            networkSpeed.setText(speed + " kbps");
+            Log.i(TAG, "Network Speed : " + speed);
 
         }
     }

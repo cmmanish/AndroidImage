@@ -28,10 +28,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="500dp"
             android:text="Upload"
-            android:layout_above="@+id/downloadTime"
-            android:layout_centerHorizontal="true"/>
+            android:layout_alignTop="@+id/memcacheButton"
+            android:layout_toEndOf="@+id/memcacheButton"/>
 
     <ImageButton
             android:id="@+id/cameraButton"
@@ -48,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:id="@+id/downloadTime"
+            android:id="@+id/DnTime"
             android:layout_alignParentBottom="true"/>
 
 
@@ -71,30 +70,21 @@
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="200dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/dTime"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:textSize="@dimen/font_size"/>
+                android:id="@+id/Time"
+                android:textSize="@dimen/font_size"
+                android:layout_below="@+id/cameraButton"
+                android:layout_alignStart="@+id/uploadButton"/>
 
         <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="400dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/networkspeed"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:textSize="@dimen/font_size"/>
+                android:id="@+id/networkSpeed"
+                android:textSize="@dimen/font_size"
+                android:layout_below="@+id/Time"
+                android:layout_alignStart="@+id/Time"
+                android:layout_alignParentEnd="false"/>
 
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/memCacheTime"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>
