@@ -43,6 +43,11 @@
   <component name="ProjectType">
     <option name="id" value="Android" />
   </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings />
+    </option>
+  </component>
   <component name="masterDetails">
     <states>
       <state key="ProjectJDKs.UI">
