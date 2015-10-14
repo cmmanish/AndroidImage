@@ -37,10 +37,10 @@ import java.util.Random;
 public class MainActivity extends Activity {
     static final int REQUEST_TAKE_PHOTO = 1;
     private static final String TAG = "Log-Messages";
-    private final String BASEURL = "http://cg8t.com/api/v1/users//5681034041491456/";
+    private final String url = "http://cg8t.com/api/v1/users//5681034041491456/";
     private final String[] imageList = {"DSC_0095.JPG", "DSC_0074.JPG", "DSC_0031.JPG", "DSC_0032.JPG", "DSC_0006.JPG", "DSC_0064.JPG", "DSC_0023.JPG", "DSC_0026.JPG", "DSC_0038.JPG"};
-    private String mCurrentPhotoPath;
     private File photoFile = new File("");
+    String timeStamp = new SimpleDateFormat("mmdd").format(new Date());
     private ImageView image;
     private ProgressDialog mProgressDialog;
     private long startTime = 0l;
@@ -60,21 +60,17 @@ public class MainActivity extends Activity {
         StrictMode.setThreadPolicy(policy);
         // Get the layout from image.xml
         setContentView(R.layout.activity_main);
-
         // Locate the ImageView in activity_main.xml
         image = (ImageView) findViewById(R.id.image);
-
         // Locate the Button in activity_main.xml
         Button button = (Button) findViewById(R.id.buttonDownload);
-
         ImageButton cameraButton = (ImageButton) findViewById(R.id.cameraButton);
-
         // Capture button click
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 Random generator = new Random();
                 int i = generator.nextInt(imageList.length);
-                final String imageName = BASEURL + imageList[i];
+                final String imageName = url + imageList[i];
                 // Execute DownloadImage AsyncTask
                 new DownloadImage().execute(imageName);
             }
@@ -103,7 +99,6 @@ public class MainActivity extends Activity {
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                //        postPhoto(photoFile);
             }
         }
         return photoFile;
@@ -114,15 +109,12 @@ public class MainActivity extends Activity {
         try {
             String fileName = photoFile.getName();
             Log.i(TAG, "FileName: " + fileName);
-
-            String serverResponse = null;
+            String serverResponse;
             HttpParams params = new BasicHttpParams();
             params.setParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true);
             HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
             HttpClient client = new DefaultHttpClient(params);
-            String url = "http://cg8t.com/api/v1/users/5681034041491456/";
             HttpPut put = new HttpPut(url + "/" + fileName);
-
             FileEntity fileEntity = new FileEntity(photoFile, "image/jpeg");
             put.setEntity(fileEntity);
 
@@ -131,6 +123,10 @@ public class MainActivity extends Activity {
             String duration = String.valueOf(System.currentTimeMillis() - startTime) + " ms";
             Log.i(TAG, response.getStatusLine().toString());
             Toast.makeText(getApplicationContext(), duration, Toast.LENGTH_LONG).show();
+
+            TextView downloadTime = (TextView) findViewById(R.id.dTime);
+            downloadTime.setTextColor(Color.RED);
+            downloadTime.setText(duration);
 
             HttpEntity entity = response.getEntity();
             if (entity != null) {
@@ -141,7 +137,6 @@ public class MainActivity extends Activity {
             Log.i(TAG, "Error in POSTPhotoTOServer" + e.getMessage());
         }
     }
-
 
     // Todo: Show thumbnail
     //    @Override
@@ -158,13 +153,12 @@ public class MainActivity extends Activity {
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        File f = new File("/storage/emulated/legacy/Pictures");
-        String timeStamp = new SimpleDateFormat("HHmmss").format(new Date());
-        String imageFileName = "FromAndroid_" + timeStamp + "_";
-        File image = File.createTempFile(imageFileName, ".jpg", f);
+        File file = new File("/storage/emulated/legacy/Pictures");
 
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file: " + image.getAbsolutePath();
+        String imageFileName = "FromAndroid_" + timeStamp;
+        Log.i(TAG, imageFileName);
+
+        File image = File.createTempFile(imageFileName, ".jpg", file);
         return image;
     }
 
