@@ -10,10 +10,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -33,6 +35,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+import java.util.logging.Handler;
 
 public class MainActivity extends Activity {
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -64,6 +67,8 @@ public class MainActivity extends Activity {
         image = (ImageView) findViewById(R.id.image);
         // Locate the Button in activity_main.xml
         Button button = (Button) findViewById(R.id.buttonDownload);
+        Button memcacheButton = (Button) findViewById(R.id.memcacheButton);
+
         ImageButton cameraButton = (ImageButton) findViewById(R.id.cameraButton);
         // Capture button click
         button.setOnClickListener(new OnClickListener() {
@@ -81,6 +86,22 @@ public class MainActivity extends Activity {
                 photoFile = dispatchTakePictureIntent();
             }
         });
+
+        memcacheButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+
+                Random generator = new Random();
+                int i = generator.nextInt(imageList.length);
+
+                final String imageName = url + imageList[i];
+                // Execute DownloadImage AsyncTask
+                new DownloadImage().execute(imageName);
+
+                new DownloadImage().execute(imageName);
+            }
+
+        });
+
     }
 
     private File dispatchTakePictureIntent() {
@@ -120,13 +141,22 @@ public class MainActivity extends Activity {
 
             startTime = System.currentTimeMillis();
             HttpResponse response = client.execute(put);
-            String duration = String.valueOf(System.currentTimeMillis() - startTime) + " ms";
+            String duration = String.valueOf(System.currentTimeMillis() - startTime);
+            long fileSize = photoFile.length();
+            String speed = String.valueOf(fileSize / Integer.parseInt(duration));
+
             Log.i(TAG, response.getStatusLine().toString());
             Toast.makeText(getApplicationContext(), duration, Toast.LENGTH_LONG).show();
 
             TextView downloadTime = (TextView) findViewById(R.id.dTime);
+            TextView networkspeed = (TextView) findViewById(R.id.networkspeed);
+
+
+            networkspeed.setTextColor(Color.BLUE);
+            networkspeed.setText(speed + "kbps");
+
             downloadTime.setTextColor(Color.RED);
-            downloadTime.setText(duration);
+            downloadTime.setText(duration + "ms");
 
             HttpEntity entity = response.getEntity();
             if (entity != null) {
@@ -134,7 +164,7 @@ public class MainActivity extends Activity {
                 Log.i(TAG, (serverResponse));
             }
         } catch (Exception e) {
-            Log.i(TAG, "Error in POSTPhotoTOServer" + e.getMessage());
+            Log.i(TAG, "Error in PUTPhotoTOServer" + e.getMessage());
         }
     }
 
@@ -178,23 +208,26 @@ public class MainActivity extends Activity {
             mProgressDialog.setIndeterminate(false);
             // Show progressdialog
             mProgressDialog.show();
+            TextView networkSpeed = (TextView) findViewById(R.id.networkspeed);
+            networkSpeed.setText("");
+            TextView downloadTime = (TextView) findViewById(R.id.downloadTime);
+            downloadTime.setText("");
         }
 
         @Override
         protected Bitmap doInBackground(String... URL) {
-
-            String imageURL = URL[0];
-            Bitmap bitmap = null;
-            try {
-                startTime = System.currentTimeMillis();
-                // Download Image from URL
-                InputStream input = new java.net.URL(imageURL).openStream();
-                // Decode Bitmap
-                bitmap = BitmapFactory.decodeStream(input);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return bitmap;
+                String imageURL = URL[0];
+                Bitmap bitmap = null;
+                try {
+                    startTime = System.currentTimeMillis();
+                    // Download Image from URL
+                    InputStream input = new java.net.URL(imageURL).openStream();
+                    // Decode Bitmap
+                    bitmap = BitmapFactory.decodeStream(input);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return bitmap;
         }
 
         @Override
@@ -203,12 +236,20 @@ public class MainActivity extends Activity {
             image.setImageBitmap(result);
             // Close progressdialog
             mProgressDialog.dismiss();
-            String duration = String.valueOf(System.currentTimeMillis() - startTime) + " ms";
+            String duration = String.valueOf(System.currentTimeMillis() - startTime);
             Log.i(TAG, "Image Download time : " + duration);
             Toast.makeText(getApplicationContext(), duration + " ms", Toast.LENGTH_LONG).show();
             TextView downloadTime = (TextView) findViewById(R.id.dTime);
             downloadTime.setTextColor(Color.RED);
-            downloadTime.setText(duration);
+            downloadTime.setText(duration + "ms");
+
+            long fileSize = (result.getWidth() * result.getHeight());
+            String speed = String.valueOf(fileSize / Integer.parseInt(duration));
+
+            TextView networkspeed = (TextView) findViewById(R.id.networkspeed);
+            networkspeed.setTextColor(Color.BLUE);
+            networkspeed.setText(speed + "kbps");
+
         }
     }
 }

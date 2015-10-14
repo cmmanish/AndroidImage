@@ -5,4 +5,10 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="textAppearanceLarge">
+        <item name="android:textSize">102sp</item>
+    </style>
+
+
+
 </resources>
