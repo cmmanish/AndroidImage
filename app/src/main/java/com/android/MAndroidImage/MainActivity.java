@@ -186,9 +186,7 @@ public class MainActivity extends Activity {
     private File createImageFile() throws IOException {
         // Create an image file name
         File file = new File("/storage/emulated/legacy/Pictures");
-
         String imageFileName = "FromAndroid_";
-
         File image = File.createTempFile(imageFileName, ".jpg", file);
         return image;
     }
@@ -247,7 +245,6 @@ public class MainActivity extends Activity {
             long fileSize = (result.getWidth() * result.getHeight());
 
             Log.i(TAG, "Download fileSize: " + fileSize / 1024);
-
             String speed = String.valueOf(fileSize / Integer.parseInt(duration));
 
             TextView networkSpeed = (TextView) findViewById(R.id.networkSpeed);
